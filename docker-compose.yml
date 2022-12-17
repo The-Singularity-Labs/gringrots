@@ -1,0 +1,30 @@
+version: '3.2'
+services:
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    expose:
+      - "9000"
+      - "9001"
+    ports:
+      - 9001:9001
+    volumes:
+     - ./.data:/data
+  gringrots:
+    image: gringrots:latest
+    build: 
+      context: .
+      dockerfile: Dockerfile
+
+    expose:
+      - "4001"
+    ports:
+      - 4001:4001/udp
+      - 5001:5001
+      - 8080:8080
+    environment:
+      BUCKET_ACCESS_KEY: ${BUCKET_ACCESS_KEY:-minioadmin}
+      BUCKET_SECRET_KEY: ${BUCKET_SECRET_KEY:-minioadmin}
+      BUCKET_HOSTNAME: ${BUCKET_HOSTNAME:-http://minio:9000}
+    volumes:
+     - ./.export:/export
